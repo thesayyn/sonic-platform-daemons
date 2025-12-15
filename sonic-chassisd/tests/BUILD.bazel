@@ -1,0 +1,58 @@
+load("@aspect_rules_py//py:defs.bzl", "py_library", "py_test")
+
+py_library(
+    name = "mocked_libs",
+    srcs = glob(["mocked_libs/**/*.py"]) + glob(["*.py"], exclude = ["test_*.py"]),
+    imports = [
+        ".",
+        "mocked_libs",
+    ],
+)
+
+PYTEST_DEPS = [
+    "@daemons_pip//pytest",
+    "@daemons_pip//mock",
+]
+
+TEST_DEPS = PYTEST_DEPS + [
+    ":mocked_libs",
+    "//sonic-pcied/tests:swsscommon_mock",
+    "//sonic-chassisd:chassisd",
+    "@sonic-platform-common//sonic_platform_base",
+    "@sonic-py-common//:sonic-py-common",
+    "@sonic-py-swsssdk//:swsssdk",
+    "@daemons_pip//redis",
+]
+
+py_test(
+    name = "test_chassisd",
+    srcs = ["test_chassisd.py"],
+    args = ["--import-mode=importlib", "-v"],
+    pytest_main = True,
+    deps = TEST_DEPS,
+)
+
+py_test(
+    name = "test_chassis_db_init",
+    srcs = ["test_chassis_db_init.py"],
+    args = ["--import-mode=importlib", "-v"],
+    pytest_main = True,
+    deps = TEST_DEPS + ["//sonic-chassisd:chassis_db_init"],
+)
+
+py_test(
+    name = "test_dpu_chassisd",
+    srcs = ["test_dpu_chassisd.py"],
+    args = ["--import-mode=importlib", "-v"],
+    pytest_main = True,
+    deps = TEST_DEPS,
+)
+
+test_suite(
+    name = "all_tests",
+    tests = [
+        ":test_chassisd",
+        ":test_chassis_db_init",
+        ":test_dpu_chassisd",
+    ],
+)

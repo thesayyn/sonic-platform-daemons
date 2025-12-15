@@ -1,0 +1,9 @@
+load("@aspect_rules_py//py:defs.bzl", "py_library")
+
+py_library(
+    name = "psud",
+    srcs = ["scripts/psud"],
+    imports = ["scripts"],
+    visibility = ["//visibility:public"],
+)
+

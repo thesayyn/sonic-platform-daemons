@@ -1,0 +1,9 @@
+load("@aspect_rules_py//py:defs.bzl", "py_library")
+
+py_library(
+    name = "sensormond",
+    srcs = ["scripts/sensormond"],
+    imports = ["scripts"],
+    visibility = ["//visibility:public"],
+)
+

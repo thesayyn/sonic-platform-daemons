@@ -1,0 +1,26 @@
+[project]
+name = "sonic-platform-daemons"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "build>=1.0.0",
+    "setuptools>=61.0",
+    # ycabled dependencies
+    "grpcio>=1.60.0",
+    "grpcio-tools>=1.60.0",
+    "protobuf>=4.25.0",
+    # sensormond dependencies
+    "PyYAML>=6.0.2",
+    # swsssdk dependencies
+    "redis>=4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "mock>=5.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

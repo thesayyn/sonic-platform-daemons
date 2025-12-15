@@ -1,0 +1,16 @@
+load("@aspect_rules_py//py:defs.bzl", "py_library")
+
+py_library(
+    name = "chassisd",
+    srcs = ["scripts/chassisd"],
+    imports = ["scripts"],
+    visibility = ["//visibility:public"],
+)
+
+py_library(
+    name = "chassis_db_init",
+    srcs = ["scripts/chassis_db_init"],
+    imports = ["scripts"],
+    visibility = ["//visibility:public"],
+)
+

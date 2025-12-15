@@ -1,0 +1,47 @@
+load("@aspect_rules_py//py:defs.bzl", "py_library", "py_test")
+
+py_library(
+    name = "mocked_libs",
+    srcs = glob(["*.py"], exclude = ["test_*.py"]),
+    imports = ["."],
+)
+
+PYTEST_DEPS = [
+    "@daemons_pip//pytest",
+    "@daemons_pip//mock",
+]
+
+TEST_DEPS = PYTEST_DEPS + [
+    ":mocked_libs",
+    "//sonic-pcied/tests:swsscommon_mock",
+    "//sonic-ycabled:ycabled",
+    "@sonic-platform-common//sonic_platform_base",
+    "@sonic-platform-common//sonic_y_cable",
+    "@sonic-py-common//:sonic-py-common",
+    "@sonic-py-swsssdk//:swsssdk",
+    "@daemons_pip//redis",
+]
+
+py_test(
+    name = "test_ycable",
+    srcs = ["test_ycable.py"],
+    args = ["--import-mode=importlib", "-v"],
+    pytest_main = True,
+    deps = TEST_DEPS,
+)
+
+py_test(
+    name = "test_y_cable_helper",
+    srcs = ["test_y_cable_helper.py"],
+    args = ["--import-mode=importlib", "-v"],
+    pytest_main = True,
+    deps = TEST_DEPS,
+)
+
+test_suite(
+    name = "all_tests",
+    tests = [
+        ":test_ycable",
+        ":test_y_cable_helper",
+    ],
+)

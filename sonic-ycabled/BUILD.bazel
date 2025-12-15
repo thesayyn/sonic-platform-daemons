@@ -1,0 +1,53 @@
+load("@aspect_rules_py//py:defs.bzl", "py_binary", "py_library")
+
+# Binary that runs protoc with proper venv
+py_binary(
+    name = "run_protoc",
+    srcs = ["run_protoc.py"],
+    deps = [
+        "@daemons_pip//grpcio_tools",
+    ],
+)
+
+# Generate protobuf files from .proto
+genrule(
+    name = "proto_gen",
+    srcs = ["proto/proto_out/linkmgr_grpc_driver.proto"],
+    outs = [
+        "proto_out/linkmgr_grpc_driver_pb2.py",
+        "proto_out/linkmgr_grpc_driver_pb2_grpc.py",
+    ],
+    cmd = """
+        $(location :run_protoc) \
+            -I$$(dirname $$(dirname $(location proto/proto_out/linkmgr_grpc_driver.proto))) \
+            --python_out=$(RULEDIR) \
+            --grpc_python_out=$(RULEDIR) \
+            $(location proto/proto_out/linkmgr_grpc_driver.proto)
+    """,
+    tools = [":run_protoc"],
+)
+
+py_library(
+    name = "proto_out",
+    srcs = [
+        "proto_out/__init__.py",
+        ":proto_gen",
+    ],
+    imports = ["."],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@daemons_pip//grpcio",
+        "@daemons_pip//protobuf",
+    ],
+)
+
+py_library(
+    name = "ycabled",
+    srcs = glob(["ycable/**/*.py"]),
+    imports = ["."],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":proto_out",
+    ],
+)
+

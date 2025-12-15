@@ -21,3 +21,5 @@ test-results.xml
 leddc
 pciedc
 syseepromdc
+
+bazel-*
