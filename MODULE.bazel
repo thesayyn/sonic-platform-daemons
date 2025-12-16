@@ -2,6 +2,7 @@ module(name = "sonic-platform-daemons")
 
 bazel_dep(name = "rules_python", version = "1.7.0")
 bazel_dep(name = "aspect_rules_py", version = "1.7.1")
+bazel_dep(name = "tar.bzl", version = "0.5.5")
 
 # External SONiC dependencies
 bazel_dep(name = "sonic-py-common", version = "0.0.0")

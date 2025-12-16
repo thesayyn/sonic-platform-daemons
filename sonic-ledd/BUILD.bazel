@@ -1,5 +1,7 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 
+exports_files(["scripts/ledd"])
+
 py_library(
     name = "ledd",
     srcs = ["scripts/ledd"],

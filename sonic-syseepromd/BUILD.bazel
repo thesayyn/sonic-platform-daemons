@@ -1,5 +1,7 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 
+exports_files(["scripts/syseepromd"])
+
 py_library(
     name = "syseepromd",
     srcs = ["scripts/syseepromd"],

@@ -1,1 +1,124 @@
 # Root BUILD file for sonic-platform-daemons
+# TODO: cleanup this once sonic-build-infra has a rule that can package py_library targets.
+
+load("@tar.bzl//:tar.bzl", "tar", "mutate")
+
+# Package daemon scripts for /usr/local/bin
+tar(
+    name = "daemon_scripts_dist",
+    srcs = [
+        "//sonic-chassisd:scripts/chassisd",
+        "//sonic-chassisd:scripts/chassis_db_init",
+        "//sonic-ledd:scripts/ledd",
+        "//sonic-pcied:scripts/pcied",
+        "//sonic-psud:scripts/psud",
+        "//sonic-sensormond:scripts/sensormond",
+        "//sonic-stormond:scripts/stormond",
+        "//sonic-syseepromd:scripts/syseepromd",
+        "//sonic-thermalctld:scripts/thermalctld",
+    ],
+    mtree = [
+        "./usr/local/bin/chassisd uid=0 gid=0 mode=0755 type=file content=$(location //sonic-chassisd:scripts/chassisd)",
+        "./usr/local/bin/chassis_db_init uid=0 gid=0 mode=0755 type=file content=$(location //sonic-chassisd:scripts/chassis_db_init)",
+        "./usr/local/bin/ledd uid=0 gid=0 mode=0755 type=file content=$(location //sonic-ledd:scripts/ledd)",
+        "./usr/local/bin/pcied uid=0 gid=0 mode=0755 type=file content=$(location //sonic-pcied:scripts/pcied)",
+        "./usr/local/bin/psud uid=0 gid=0 mode=0755 type=file content=$(location //sonic-psud:scripts/psud)",
+        "./usr/local/bin/sensormond uid=0 gid=0 mode=0755 type=file content=$(location //sonic-sensormond:scripts/sensormond)",
+        "./usr/local/bin/stormond uid=0 gid=0 mode=0755 type=file content=$(location //sonic-stormond:scripts/stormond)",
+        "./usr/local/bin/syseepromd uid=0 gid=0 mode=0755 type=file content=$(location //sonic-syseepromd:scripts/syseepromd)",
+        "./usr/local/bin/thermalctld uid=0 gid=0 mode=0755 type=file content=$(location //sonic-thermalctld:scripts/thermalctld)",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# Package xcvrd library and create entry point script
+genrule(
+    name = "xcvrd_entry_script",
+    outs = ["xcvrd"],
+    cmd = """
+cat > $@ << 'EOF'
+#!/usr/bin/env python3
+from xcvrd.xcvrd import main
+if __name__ == '__main__':
+    main()
+EOF
+""",
+)
+
+tar(
+    name = "xcvrd_dist",
+    srcs = [
+        ":xcvrd_entry_script",
+        "//sonic-xcvrd:xcvrd_files",
+    ],
+    mutate = mutate(
+        package_dir = "/usr/lib/python3/dist-packages",
+        strip_prefix = "sonic-xcvrd",
+    ),
+    visibility = ["//visibility:public"],
+)
+
+tar(
+    name = "xcvrd_bin",
+    srcs = [":xcvrd_entry_script"],
+    mtree = [
+        "./usr/local/bin/xcvrd uid=0 gid=0 mode=0755 type=file content=$(location :xcvrd_entry_script)",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# Package ycabled library and create entry point script
+genrule(
+    name = "ycabled_entry_script",
+    outs = ["ycabled"],
+    cmd = """
+cat > $@ << 'EOF'
+#!/usr/bin/env python3
+from ycable.ycable import main
+if __name__ == '__main__':
+    main()
+EOF
+""",
+)
+
+tar(
+    name = "ycabled_dist",
+    srcs = [
+        "//sonic-ycabled:ycable_files",
+        "//sonic-ycabled:proto_out_files",
+        "//sonic-ycabled:proto_gen",
+    ],
+    mutate = mutate(
+        package_dir = "/usr/lib/python3/dist-packages",
+        strip_prefix = "sonic-ycabled",
+    ),
+    visibility = ["//visibility:public"],
+)
+
+tar(
+    name = "ycabled_bin",
+    srcs = [":ycabled_entry_script"],
+    mtree = [
+        "./usr/local/bin/ycabled uid=0 gid=0 mode=0755 type=file content=$(location :ycabled_entry_script)",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# Combined distribution for all daemons (using filegroup since tar doesn't support deps)
+filegroup(
+    name = "dist_group",
+    srcs = [
+        ":daemon_scripts_dist",
+        ":xcvrd_dist",
+        ":xcvrd_bin",
+        ":ycabled_dist",
+        ":ycabled_bin",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+tar(
+    name = "dist",
+    srcs = [":dist_group"],
+    visibility = ["//visibility:public"],
+)

@@ -1,5 +1,19 @@
 load("@aspect_rules_py//py:defs.bzl", "py_binary", "py_library")
 
+exports_files(glob(["ycable/**/*.py"]) + glob(["proto_out/**/*.py"]))
+
+filegroup(
+    name = "ycable_files",
+    srcs = glob(["ycable/**/*.py"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "proto_out_files",
+    srcs = glob(["proto_out/**/*.py"]),
+    visibility = ["//visibility:public"],
+)
+
 # Binary that runs protoc with proper venv
 py_binary(
     name = "run_protoc",
@@ -25,6 +39,7 @@ genrule(
             $(location proto/proto_out/linkmgr_grpc_driver.proto)
     """,
     tools = [":run_protoc"],
+    visibility = ["//visibility:public"],
 )
 
 py_library(

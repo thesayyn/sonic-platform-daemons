@@ -1,5 +1,7 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 
+exports_files(["scripts/chassisd", "scripts/chassis_db_init"])
+
 py_library(
     name = "chassisd",
     srcs = ["scripts/chassisd"],
